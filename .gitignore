@@ -1,0 +1,327 @@
+# =============================================================================
+# AURA DIAGNOSTICS - GIT IGNORE CONFIGURATION
+# =============================================================================
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# Logs
+*.log
+logs/
+audit_trail.log
+compliance_audit.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+aura.db
+
+# Vector database
+chroma_db/
+*.chroma
+
+# Cache
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+backups/
+
+# API keys and credentials
+credentials.json
+service-account.json
+*.pem
+*.key
+*.crt
+
+# Medical data (HIPAA compliance)
+patient_data/
+medical_records/
+phi_data/
+
+# Model files (can be large)
+models/
+*.pkl
+*.joblib
+*.h5
+*.pb
+
+# Node.js (for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build
+build/
+dist/
+
+# Coverage reports
+coverage/
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local development
+.local
+local_config.py
+dev_settings.py
+
+# Testing
+.pytest_cache/
+test_results/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# Deployment
+.vercel
+.netlify
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# AWS
+.aws/
+
+# Google Cloud
+.gcloud/
+
+# Azure
+.azure/
+
+# Kubernetes
+*.kubeconfig
+
+# Monitoring
+.sentry-native
+
+# Performance monitoring
+.clinic/
+
+# Profiling
+*.prof
+
+# Memory dumps
+*.hprof
+*.heapsnapshot
+
+# Security scanning
+.snyk
+
+# License files (if auto-generated)
+LICENSE.generated
+
+# Package manager lock files (optional - team decision)
+# package-lock.json
+# yarn.lock
+# Pipfile.lock
+
+# =============================================================================
+# PROJECT SPECIFIC IGNORES
+# =============================================================================
+
+# AURA specific temporary files
+diagnostic_cache/
+literature_cache/
+case_search_cache/
+
+# Medical AI model artifacts
+trained_models/
+model_checkpoints/
+embeddings/
+
+# Research data
+research_data/
+clinical_trials/
+pubmed_cache/
+
+# Compliance and audit (keep structure, ignore data)
+audit_data/
+compliance_reports/
+phi_logs/
+
+# Performance benchmarks
+benchmark_results/
+performance_logs/
+
+# Integration test data
+test_patient_data/
+mock_ehr_data/
+
+# Development utilities
+dev_tools/
+scripts/temp/
+utils/temp/
+
+# =============================================================================
+# KEEP THESE FILES (NEGATION PATTERNS)
+# =============================================================================
+
+# Keep example configurations
+!.env.example
+!config.example.json
+!docker-compose.example.yml
+
+# Keep essential documentation
+!README.md
+!CONTRIBUTING.md
+!LICENSE
+!CHANGELOG.md
+
+# Keep CI/CD configurations
+!.github/
+!.gitlab-ci.yml
+!.travis.yml
+!.circleci/
+
+# Keep Docker configurations
+!Dockerfile
+!docker-compose.yml
+!.dockerignore
+
+# Keep essential config files
+!pyproject.toml
+!setup.py
+!requirements.txt
+!package.json
+
+# Keep test configurations
+!pytest.ini
+!.coveragerc
+!jest.config.js
