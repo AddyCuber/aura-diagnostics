@@ -1,0 +1,37 @@
+[
+  {
+    "case_id": "CS001",
+    "title": "Atypical Presentation of Celiac Disease in an Adolescent",
+    "keywords": ["celiac disease", "malabsorption", "dermatitis herpetiformis", "gluten sensitivity", "autoimmune"],
+    "full_text": "A 14-year-old female presented with persistent fatigue, unexplained weight loss, and recurrent abdominal discomfort over a 6-month period. Initial physical examination revealed mild abdominal tenderness and a characteristic skin rash on extensor surfaces. Laboratory findings showed iron deficiency anemia, elevated liver enzymes, and positive tissue transglutaminase antibodies. Upper endoscopy with duodenal biopsy confirmed villous atrophy consistent with celiac disease. The patient was placed on a strict gluten-free diet with nutritional supplementation and referred to a dietitian for comprehensive dietary education.",
+    "outcome": "After 3 months of dietary compliance, the patient showed significant improvement in symptoms, weight gain, and normalization of laboratory values."
+  },
+  {
+    "case_id": "CS002",
+    "title": "Acute Bacterial Meningitis with Atypical Presentation",
+    "keywords": ["meningitis", "bacterial infection", "neurological symptoms", "antibiotic therapy", "lumbar puncture"],
+    "full_text": "A 67-year-old male with a history of type 2 diabetes presented to the emergency department with confusion, low-grade fever, and mild headache of 24-hour duration. Notably absent were classic meningeal signs such as neck stiffness and photophobia. Given his age and comorbidity, a lumbar puncture was performed, revealing cloudy cerebrospinal fluid with elevated protein, decreased glucose, and predominance of neutrophils. Gram stain showed gram-positive diplococci, later confirmed as Streptococcus pneumoniae. The patient was immediately started on high-dose intravenous ceftriaxone and vancomycin. Blood cultures were also positive for S. pneumoniae, confirming bacteremia.",
+    "outcome": "Following 14 days of targeted antibiotic therapy, the patient made a full recovery with no neurological sequelae."
+  },
+  {
+    "case_id": "CS003",
+    "title": "Rare Presentation of Addison's Disease Following Prolonged Steroid Use",
+    "keywords": ["Addison's disease", "adrenal insufficiency", "hyperpigmentation", "electrolyte imbalance", "steroid withdrawal"],
+    "full_text": "A 42-year-old female with a history of rheumatoid arthritis presented with progressive fatigue, weight loss, salt craving, and hyperpigmentation of skin creases and oral mucosa. The patient had been on long-term prednisone therapy for rheumatoid arthritis but had self-discontinued the medication 3 months prior. Laboratory evaluation revealed hyponatremia, hyperkalemia, and hypoglycemia. Morning cortisol levels were significantly low, and ACTH stimulation test confirmed primary adrenal insufficiency. Further investigation with adrenal antibodies suggested autoimmune adrenalitis as the underlying cause, likely unmasked by the abrupt withdrawal of exogenous steroids.",
+    "outcome": "The patient was stabilized with hydrocortisone and fludrocortisone replacement therapy, with dramatic improvement in symptoms within 2 weeks."
+  },
+  {
+    "case_id": "CS004",
+    "title": "Unusual Case of Pulmonary Embolism in a Young Athlete",
+    "keywords": ["pulmonary embolism", "deep vein thrombosis", "anticoagulation", "thrombophilia", "factor V Leiden"],
+    "full_text": "A 23-year-old male collegiate swimmer with no significant medical history presented to urgent care with acute onset of pleuritic chest pain and mild dyspnea following a long-distance flight. Initial vital signs showed tachycardia and normal oxygen saturation. D-dimer was markedly elevated, and CT pulmonary angiography confirmed bilateral pulmonary emboli. Doppler ultrasound of lower extremities revealed deep vein thrombosis in the left popliteal vein. The patient was started on low-molecular-weight heparin and admitted for observation. Subsequent thrombophilia workup revealed heterozygosity for factor V Leiden mutation. Further history uncovered that the patient's mother had experienced a deep vein thrombosis during pregnancy.",
+    "outcome": "The patient was transitioned to direct oral anticoagulant therapy for 6 months with complete resolution of the emboli and no recurrence at 1-year follow-up."
+  },
+  {
+    "case_id": "CS005",
+    "title": "Paraneoplastic Syndrome as First Presentation of Occult Malignancy",
+    "keywords": ["paraneoplastic syndrome", "small cell lung cancer", "Lambert-Eaton myasthenic syndrome", "oncology", "neurology"],
+    "full_text": "A 58-year-old male with a 30-pack-year smoking history presented with progressive proximal muscle weakness, dry mouth, and autonomic symptoms including orthostatic hypotension over 2 months. Neurological examination revealed proximal muscle weakness that improved with repeated effort, diminished deep tendon reflexes, and mild ptosis. Serological testing was positive for voltage-gated calcium channel antibodies, suggesting Lambert-Eaton myasthenic syndrome. Given the strong association with malignancy, a chest CT was performed, revealing a 1.5 cm hilar mass. Subsequent biopsy confirmed small cell lung carcinoma. The patient was diagnosed with paraneoplastic Lambert-Eaton myasthenic syndrome secondary to occult small cell lung cancer.",
+    "outcome": "The patient underwent combination chemotherapy and radiation therapy with partial improvement of neurological symptoms and good response of the primary tumor."
+  }
+]

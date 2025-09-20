@@ -8,8 +8,10 @@ Why FastAPI? It's async by default, has automatic API docs, and plays nice with 
 Perfect for our AI agents that'll be making lots of concurrent API calls.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import sqlite3
+from typing import List, Dict, Any
 
 # Create the FastAPI app instance
 # We'll add more config here as we build out the system
@@ -61,6 +63,56 @@ async def health_check():
             "ai_agents": "pending"   # We'll update this once agents are implemented
         }
     }
+
+@app.get("/api/diagnose/{diagnosis_id}/audit")
+async def get_diagnosis_audit_logs(diagnosis_id: str) -> List[Dict[str, Any]]:
+    """
+    Retrieve audit logs for a specific diagnosis.
+    
+    Args:
+        diagnosis_id: The unique identifier for the diagnosis
+        
+    Returns:
+        A list of audit log entries with timestamp and message
+        
+    Raises:
+        HTTPException: If no logs are found for the given diagnosis_id
+    """
+    try:
+        # Connect to the SQLite database using absolute path
+        import os
+        db_path = os.path.join(os.path.dirname(__file__), 'audit.db')
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row  # This enables column access by name
+        cursor = conn.cursor()
+        
+        # Query the audit_log table for entries matching the diagnosis_id
+        cursor.execute(
+            "SELECT timestamp, message FROM audit_log WHERE diagnosis_id = ? ORDER BY timestamp ASC",
+            (diagnosis_id,)
+        )
+        
+        # Fetch all matching records
+        logs = [{"timestamp": row["timestamp"], "message": row["message"]} for row in cursor.fetchall()]
+        
+        # Close the connection
+        conn.close()
+        
+        # If no logs were found, raise a 404 error
+        if not logs:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No audit logs found for diagnosis ID: {diagnosis_id}"
+            )
+            
+        return logs
+        
+    except Exception as e:
+        # If there's a database error, raise a 500 error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
 
 # This runs when you start the server with: uvicorn main:app --reload
 if __name__ == "__main__":

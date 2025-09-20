@@ -1,0 +1,62 @@
+{
+  "Hypertension": {
+    "common_treatments": [
+      "Lisinopril",
+      "Amlodipine",
+      "Hydrochlorothiazide",
+      "Losartan",
+      "Metoprolol"
+    ],
+    "contraindications": {
+      "pregnancy": "ACE inhibitors and ARBs are contraindicated during pregnancy due to risk of fetal harm",
+      "renal failure": "Use diuretics with caution in severe renal impairment",
+      "hyperkalemia": "ACE inhibitors and potassium-sparing diuretics may increase potassium levels",
+      "asthma": "Beta-blockers may exacerbate bronchospasm in patients with asthma"
+    }
+  },
+  "Bacterial Sinusitis": {
+    "common_treatments": [
+      "Amoxicillin",
+      "Amoxicillin-Clavulanate",
+      "Doxycycline",
+      "Levofloxacin",
+      "Clarithromycin"
+    ],
+    "contraindications": {
+      "penicillin allergy": "Avoid amoxicillin and amoxicillin-clavulanate in patients with penicillin allergy",
+      "pregnancy": "Doxycycline and fluoroquinolones should be avoided during pregnancy",
+      "myasthenia gravis": "Fluoroquinolones may exacerbate muscle weakness in myasthenia gravis",
+      "QT prolongation": "Macrolides and fluoroquinolones may prolong QT interval"
+    }
+  },
+  "Type 2 Diabetes": {
+    "common_treatments": [
+      "Metformin",
+      "Glipizide",
+      "Empagliflozin",
+      "Semaglutide",
+      "Sitagliptin"
+    ],
+    "contraindications": {
+      "renal impairment": "Metformin is contraindicated in severe renal impairment (eGFR <30 mL/min)",
+      "heart failure": "Thiazolidinediones may cause fluid retention and worsen heart failure",
+      "diabetic ketoacidosis": "SGLT2 inhibitors should not be used in patients with DKA",
+      "pancreatitis": "GLP-1 receptor agonists should be used with caution in patients with history of pancreatitis"
+    }
+  },
+  "Major Depressive Disorder": {
+    "common_treatments": [
+      "Sertraline",
+      "Escitalopram",
+      "Venlafaxine",
+      "Bupropion",
+      "Mirtazapine"
+    ],
+    "contraindications": {
+      "MAO inhibitor use": "SSRIs should not be used within 14 days of MAO inhibitor use due to risk of serotonin syndrome",
+      "seizure disorder": "Bupropion lowers seizure threshold and should be used with caution in patients with seizure disorders",
+      "liver disease": "Dose adjustments may be needed for patients with hepatic impairment",
+      "suicidal ideation": "Increased monitoring required in adolescents and young adults due to increased risk of suicidal thoughts"
+    }
+  }
+}
