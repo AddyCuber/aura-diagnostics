@@ -1,0 +1,8 @@
+# This file ensures the chroma_db directory is tracked by git
+# 
+# ChromaDB will create its database files in this directory when the application runs.
+# The .gitkeep file makes sure the directory structure is preserved in version control
+# even when the database files themselves are not committed.
+#
+# Database files should be added to .gitignore to avoid committing large binary files
+# and sensitive data to the repository.
