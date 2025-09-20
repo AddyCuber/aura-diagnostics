@@ -53,6 +53,13 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
     
     id = Column(Integer, primary_key=True, index=True)
+    
+    # --- THIS IS THE NEW, CRITICAL FIELD ---
+    # Each diagnostic session gets a unique ID like "diag_1758379433_a84753ed"
+    # This lets us track all the steps that happened during one diagnosis
+    diagnosis_id = Column(String(50), nullable=False, index=True)
+    # ------------------------------------
+    
     patient_id = Column(Integer, nullable=True)  # Which patient this relates to
     agent_name = Column(String(50), nullable=False)  # Which AI agent performed the action
     action_type = Column(String(50), nullable=False)  # What type of action (analyze, search, etc.)

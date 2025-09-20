@@ -95,11 +95,8 @@ class OrchestratorWorkflow:
             state.patient_details = await self._safe_step(state, "EHR_Fetcher", self._fetch_ehr_data)
             state.literature_evidence = await self._safe_step(state, "LitSearcher", self._search_literature)
             
-            # --- TEMPORARILY DISABLED ---
-            # The CaseSearcher is disabled until the ChromaDB collection is ready.
-            log_step(state.diagnosis_id, "CaseSearcher", "SKIPPED", "Case database not yet available.")
-            state.case_database_evidence = "No similar cases found - case database temporarily disabled."
-            # ----------------------------
+            # Case database search - now enabled!
+            state.case_database_evidence = await self._safe_step(state, "CaseSearcher", self._search_case_database)
             
             # --- NEW SUPERVISOR STEP ---
             state.critique_notes = await self._safe_step(state, "CritiqueAgent", self._critique_evidence)
