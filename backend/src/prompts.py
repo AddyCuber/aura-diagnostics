@@ -57,6 +57,62 @@ class DiagnosticPrompts:
         """ 
 
     # ---------------------------- 
+    # --- NEW: CRITIQUE AGENT --- 
+    # ---------------------------- 
+    CRITIQUE_AGENT_SYSTEM = """ 
+    You are a senior clinical reviewer AI. Your role is to critically evaluate a collection of evidence 
+    for a patient case. You are a skeptic. Your goal is to identify potential issues before a final 
+    report is generated. Do not offer a diagnosis. Focus ONLY on the quality and coherence of the data provided. 
+    """ 
+
+    @staticmethod 
+    def critique_agent_user(state: Dict) -> str: 
+        # (Helper functions can be defined here or globally in the file if needed) 
+        def format_symptoms(symptoms: List[Dict]) -> str: 
+            if not symptoms: return "None reported." 
+            return ", ".join([s.get('name', 'N/A') for s in symptoms]) 
+
+        def format_evidence(evidence: list, source_prefix: str) -> str: 
+            if not evidence: return f"No {source_prefix.lower()} found." 
+            # Assuming evidence is a list of strings or dicts with a 'title' 
+            if isinstance(evidence[0], dict): 
+                 return "\n- ".join([f"[{source_prefix}] {item.get('title', 'N/A')}" for item in evidence]) 
+            return "\n- ".join([f"[{source_prefix}] {item}" for item in evidence]) 
+
+        patient = state.get("patient_details", {}) 
+        symptoms = state.get("structured_symptoms", {}).get("symptoms", []) 
+        literature = state.get("literature_evidence", []) 
+        cases = state.get("case_database_evidence", []) 
+
+        return f""" 
+        Critically review the following evidence bundle. 
+
+        ## Patient Information 
+        - Age: {patient.get('age', 'N/A')} 
+        - Gender: {patient.get('gender', 'N/A')} 
+        - Medical History: {patient.get('medical_history', 'N/A')} 
+
+        ## Evidence 
+        - Symptoms Reported: {format_symptoms(symptoms)} 
+        - Literature Found: {format_evidence(literature, 'PubMed')} 
+        - Similar Cases Found: {format_evidence(cases, 'CaseDB')} 
+
+        ## Your Task 
+        Based ONLY on the data above, provide a critique in a valid JSON format. 
+        Identify: 
+        1. "inconsistencies": Are there any contradictions between the patient's history and the evidence? (e.g., literature suggests a condition common in adults, but the patient is a child). 
+        2. "gaps": Is there any missing information that weakens the evidence? (e.g., "The literature search returned very few results, suggesting the initial query may be too narrow.") 
+        3. "red_flags": Are there any high-risk factors that need to be highlighted? (e.g., "The symptom 'neck stiffness' combined with fever is a significant red flag for meningitis and should be prioritized.") 
+
+        Respond ONLY with a JSON object in this format: 
+        {{ 
+          "inconsistencies": ["...", "..."], 
+          "gaps": ["...", "..."], 
+          "red_flags": ["...", "..."] 
+        }} 
+        """ 
+
+    # ---------------------------- 
     # Diagnostic Synthesis Report (Upgraded) 
     # ---------------------------- 
     SYNTHESIS_REPORT_SYSTEM = """ 
@@ -94,12 +150,29 @@ class DiagnosticPrompts:
             else:
                 return "None found." 
         
+        # NEW: Add critique formatting
+        critique = state.get("critique_notes", {}) 
+
+        def format_critique(critique_data: dict) -> str: 
+            if not critique_data or not any(critique_data.values()): return "No critique notes provided." 
+            notes = [] 
+            if critique_data.get("inconsistencies"): 
+                notes.append(f"Inconsistencies Identified: {' | '.join(critique_data['inconsistencies'])}") 
+            if critique_data.get("gaps"): 
+                notes.append(f"Gaps Identified: {' | '.join(critique_data['gaps'])}") 
+            if critique_data.get("red_flags"): 
+                notes.append(f"Red Flags Identified: {' | '.join(critique_data['red_flags'])}") 
+            return "\n".join(f"- {note}" for note in notes) 
+        
         patient = state.get("patient_details", {}) 
         literature = state.get("literature_evidence", []) 
         cases = state.get("case_database_evidence", []) 
 
         return f""" 
-        Please synthesize a preliminary diagnostic report using ONLY the structured data below. 
+        Please synthesize a preliminary diagnostic report using ONLY the structured data and the supervisory critique below. 
+
+        ## Supervisory Critique 
+        {format_critique(critique)} 
 
         ## Patient Information (EHR) 
         - Name: {patient.get('name', 'N/A')} 
@@ -118,7 +191,8 @@ class DiagnosticPrompts:
 
         ## Report Instructions 
         1. Generate a structured report with the following sections: Summary, Key Findings, Potential Considerations, and a Disclaimer. 
-        2. When referencing evidence, you may mention the confidence score to indicate the strength of the finding. 
-        3. After the entire report, on a NEW and FINAL line, provide a recommended triage level based on the overall picture. The format MUST be "TRIAGE_LEVEL: [level]", where [level] is one of "Routine", "Priority", or "Urgent". 
+        2. **Use the Supervisory Critique to guide your summary and to highlight any identified gaps or red flags in the 'Potential Considerations' section.** 
+        3. When referencing evidence, you may mention the confidence score to indicate the strength of the finding. 
+        4. After the entire report, on a NEW and FINAL line, provide a recommended triage level based on the overall picture. The format MUST be "TRIAGE_LEVEL: [level]", where [level] is one of "Routine", "Priority", or "Urgent". 
         """
 

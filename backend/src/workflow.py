@@ -52,6 +52,7 @@ class DiagnosticState:
     patient_details: Optional[Dict[str, Any]] = None
     literature_evidence: str = "No relevant literature found."
     case_database_evidence: str = "No similar cases found."
+    critique_notes: Optional[Dict[str, Any]] = None  # NEW: Critique Agent results
     final_report: Optional[str] = None
     drug_interaction_warnings: Optional[list] = None
     error_message: Optional[str] = None
@@ -99,6 +100,10 @@ class OrchestratorWorkflow:
             log_step(state.diagnosis_id, "CaseSearcher", "SKIPPED", "Case database not yet available.")
             state.case_database_evidence = "No similar cases found - case database temporarily disabled."
             # ----------------------------
+            
+            # --- NEW SUPERVISOR STEP ---
+            state.critique_notes = await self._safe_step(state, "CritiqueAgent", self._critique_evidence)
+            # ---------------------------
             
             state.final_report = await self._safe_step(state, "ReportSynthesizer", self._synthesize_report)
             state = await self._safe_step(state, "DrugChecker", self._check_drug_interactions, is_state_modifier=True)
@@ -221,3 +226,20 @@ class OrchestratorWorkflow:
                 state.drug_interaction_warnings = interaction_results["warnings"]
                 state.final_report += "\n\n## 🚨 Safety Warnings\n\n" + "\n".join([f"- {w}" for w in interaction_results["warnings"]])
         return state
+
+    async def _critique_evidence(self, state: DiagnosticState) -> Dict[str, Any]:
+        """Agent 5: Critically reviews all gathered evidence for gaps and inconsistencies."""
+        # Hey future dev - this is where we get skeptical about our evidence quality!
+        # The AI acts like a senior clinician double-checking our work before we write the final report.
+        # If this breaks, check that the prompts.py has the CRITIQUE_AGENT_SYSTEM prompt defined.
+        prompt = self.prompts.critique_agent_user(state.to_dict())
+        response = await to_thread(
+            self.client.chat.completions.create,
+            model="gpt-4o-mini", temperature=0.1,
+            messages=[
+                {"role": "system", "content": self.prompts.CRITIQUE_AGENT_SYSTEM},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        return json.loads(response.choices[0].message.content)
