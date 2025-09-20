@@ -95,14 +95,14 @@ class PubMedService:
         This method digs through the XML structure to extract what we need:
         PMID, title, and abstract.
         
-        If any article is missing required fields, we skip it rather than
-        crash the whole batch. Better to get some articles than none.
+        Now returns structured evidence format with proper source_id for traceability.
+        Each article gets formatted as evidence with confidence score and source citation.
         
         Args:
             root: XML root element from PubMed response
             
         Returns:
-            List of parsed article dictionaries
+            List of parsed article dictionaries with source_id format
         """
         parsed_articles = []
         for article in root.findall(".//PubmedArticle"):
@@ -112,10 +112,14 @@ class PubMedService:
                 abstract_elem = article.find(".//Abstract/AbstractText")
 
                 if pmid_elem is not None and title_elem is not None and abstract_elem is not None:
+                    # Format as structured evidence with proper source_id for traceability
                     parsed_articles.append({
                         "pmid": pmid_elem.text,
                         "title": title_elem.text,
                         "abstract": abstract_elem.text,
+                        "source_id": f"PMID:{pmid_elem.text}",  # Critical: proper source_id format
+                        "text": f"Title: {title_elem.text}\nAbstract: {abstract_elem.text}",
+                        "confidence": 0.8  # Default confidence for PubMed articles (peer-reviewed)
                     })
             except Exception:
                 # Skip malformed articles rather than crash the whole batch

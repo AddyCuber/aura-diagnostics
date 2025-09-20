@@ -79,8 +79,10 @@ class DrugService:
         handling cases where the file doesn't exist or is malformed.
         """
         try:
-            # Look for drug database in the data directory
-            file_path = os.path.join(os.path.dirname(__file__), 'data', 'drug_database.json')
+            # Look for drug database in the backend/data directory
+            # Go up from src/services to backend, then into data
+            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            file_path = os.path.join(backend_dir, 'data', 'drug_database.json')
             
             with open(file_path, 'r') as file:
                 drug_data = json.load(file)

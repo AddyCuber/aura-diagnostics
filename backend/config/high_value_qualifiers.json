@@ -1,0 +1,41 @@
+{
+  "rash": [
+    "slapped cheek",
+    "bull's-eye",
+    "target lesion",
+    "vesicular",
+    "maculopapular",
+    "sandpaper rash",
+    "palms and soles",
+    "petechiae",
+    "purpura",
+    "morbilliform",
+    "livedo reticularis",
+    "urticarial",
+    "erythematous plaque"
+  ],
+  "mucocutaneous": [
+    "strawberry tongue",
+    "Koplik spots",
+    "conjunctivitis",
+    "oral ulcers"
+  ],
+  "neurologic": [
+    "nuchal rigidity",
+    "photophobia",
+    "seizures",
+    "altered mental status"
+  ],
+  "respiratory": [
+    "whooping cough",
+    "paroxysmal cough",
+    "hemoptysis",
+    "night sweats"
+  ],
+  "systemic": [
+    "blue baby",
+    "failure to thrive",
+    "hypotonia",
+    "floppy infant"
+  ]
+}

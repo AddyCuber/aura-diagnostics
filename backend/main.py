@@ -14,10 +14,12 @@ takes patient symptoms and runs them through our four specialized agents.
 import uuid
 import time
 import logging
+import os
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from agents import ehr_agent
 from src.workflow import OrchestratorWorkflow  # Our new LangGraph workflow
@@ -50,15 +52,28 @@ app.add_middleware(
 # Initialize workflow after environment variables are loaded
 workflow = OrchestratorWorkflow()
 
-# Remove the old DiagnosisRequest model since we now import it from models.py
+# Serve static files (our data folder for the frontend)
+app.mount("/backend/data", StaticFiles(directory="data"), name="data")
 
 @app.get("/")
 async def root():
     """
-    Basic health check endpoint.
+    Serve the main frontend UI.
+    
+    This serves our enhanced AURA Diagnostics interface directly from the backend.
+    No need for a separate frontend server - everything runs on port 8000.
+    """
+    # Path to our frontend HTML file (one level up from backend)
+    frontend_path = os.path.join(os.path.dirname(__file__), "..", "test_frontend.html")
+    return FileResponse(frontend_path)
+
+@app.get("/api/status")
+async def api_status():
+    """
+    API health check endpoint.
     
     Returns a simple message to confirm the API is running.
-    This will be our first test to make sure FastAPI is working properly.
+    This is separate from the main UI route for API testing.
     """
     return {"message": "AURA Diagnostics API is running 🩺"}
 

@@ -62,7 +62,14 @@ class DiagnosticPrompts:
     CRITIQUE_AGENT_SYSTEM = """ 
     You are a senior clinical reviewer AI. Your role is to critically evaluate a collection of evidence 
     for a patient case. You are a skeptic. Your goal is to identify potential issues before a final 
-    report is generated. Do not offer a diagnosis. Focus ONLY on the quality and coherence of the data provided. 
+    report is generated. Do not offer a diagnosis. Focus ONLY on the quality and coherence of the data provided.
+    
+    CRITICAL: When providing critique, you must reference specific sources from the evidence provided.
+    - Reference specific PubMed articles: "The study PMID:12345 suggests..."
+    - Reference specific case studies: "Case CaseDB:CASE_001 shows..."  
+    - Reference patient documents: "Patient's medical history [Patient: Medical History] indicates..."
+    - NEVER make generic statements without source attribution
+    - Your critique must be evidence-based, not opinion-based
     """ 
 
     @staticmethod 
@@ -74,8 +81,11 @@ class DiagnosticPrompts:
 
         def format_evidence(evidence: list, source_prefix: str) -> str: 
             if not evidence: return f"No {source_prefix.lower()} found." 
-            # Assuming evidence is a list of strings or dicts with a 'title' 
-            if isinstance(evidence[0], dict): 
+            # Handle the new structured format with source_id, text, and confidence
+            if isinstance(evidence[0], dict) and 'source_id' in evidence[0]: 
+                 return "\n- ".join([f"[{item.get('source_id', 'N/A')}] {item.get('text', 'N/A')[:100]}..." for item in evidence]) 
+            # Fallback for old format or simple dicts
+            elif isinstance(evidence[0], dict): 
                  return "\n- ".join([f"[{source_prefix}] {item.get('title', 'N/A')}" for item in evidence]) 
             return "\n- ".join([f"[{source_prefix}] {item}" for item in evidence]) 
 
@@ -125,7 +135,37 @@ class DiagnosticPrompts:
     - You MUST include a disclaimer at the end of the main report. 
     - Only use the data provided — do not infer outside information. 
     - After the report, you MUST conclude with a final line containing the triage level in the format: "TRIAGE_LEVEL: [level]" 
+    
+    CRITICAL SOURCE CITATION REQUIREMENT:
+    - When you use ANY piece of evidence in your report, you MUST include the full [Source:...] tag provided with it.
+    - This is NON-NEGOTIABLE. Every statement based on evidence MUST be followed by its source citation.
+    - Example: "Patient presents with chest pain [Source: PMID:12345]" or "Similar case showed improvement [Source: CaseDB:CASE_001]"
+    - Do NOT paraphrase or modify the source tags - use them EXACTLY as provided in the evidence.
+    - If evidence lacks a proper external source, reference patient documents using [Patient: Document Type] format
+    - NEVER use generic "Internal Analysis" - always trace back to specific literature, cases, or patient documents
+    
+    PATIENT DOCUMENT REFERENCING:
+    - When referencing patient-specific information from their medical records, use the format [Patient: Document Type]
+    - Examples: "Patient has history of asthma [Patient: Medical History]" or "Lab results show elevated eosinophils [Patient: Lab Results]"
+    - This allows medical professionals to quickly access the source documents for verification
+    - Use these document types: Medical History, Lab Results, Chest X-Ray, Previous Visits, Medications, Allergies
     """ 
+
+    @staticmethod
+    def _format_evidence_for_prompt(evidence: list) -> str:
+        """
+        Formats evidence list into a clean, readable string for the synthesis prompt.
+        Each piece of evidence gets its own section with clear source attribution.
+        This makes it easier for the AI to reference specific sources in the report.
+        """
+        if not evidence: 
+            return "No relevant evidence found."
+        
+        # Create clean sections separated by dividers - makes it super clear where each piece starts/ends
+        return "\n\n---\n\n".join(
+            f"{item['text']}\n[Source: {item['source_id']}]"
+            for item in evidence
+        )
 
     @staticmethod 
     def synthesis_report_user(state: Dict) -> str: 
@@ -144,7 +184,7 @@ class DiagnosticPrompts:
                 return evidence if evidence else "None found."
             elif isinstance(evidence, list) and evidence:
                 return "\n".join(
-                    f"- (Confidence: {e.get('score', 0):.0%}) {e.get('text', 'N/A')} [Source: {e.get('source', 'N/A')}]"
+                    f"- (Confidence: {e.get('confidence', 0):.0%}) {e.get('text', 'N/A')} [Source: {e.get('source_id', 'N/A')}]"
                     for e in evidence
                 )
             else:
@@ -165,8 +205,18 @@ class DiagnosticPrompts:
             return "\n".join(f"- {note}" for note in notes) 
         
         patient = state.get("patient_details", {}) 
-        literature = state.get("literature_evidence", []) 
-        cases = state.get("case_database_evidence", []) 
+        # NEW: Use the cleaner formatting method for evidence - gives better source attribution
+        literature = DiagnosticPrompts._format_evidence_for_prompt(state.get("literature_evidence", []))
+        cases = DiagnosticPrompts._format_evidence_for_prompt(state.get("case_database_evidence", [])) 
+        
+        # Format imaging findings if available
+        imaging_section = ""
+        if state.get("imaging_findings"):
+            imaging_analysis = state["imaging_findings"].get("analysis", "No imaging analysis available.")
+            imaging_section = f"""
+        ## Imaging Analysis
+        {imaging_analysis} [Patient: Imaging Report]
+        """
 
         return f""" 
         Please synthesize a preliminary diagnostic report using ONLY the structured data and the supervisory critique below. 
@@ -184,15 +234,50 @@ class DiagnosticPrompts:
         {format_symptoms(state.get("structured_symptoms", {}).get("symptoms", []))} 
 
         ## Literature Evidence (PubMed) 
-        {format_evidence(literature)} 
+        {literature} 
 
         ## Similar Case Evidence (Internal Database) 
-        {format_evidence(cases)} 
-
+        {cases} 
+        {imaging_section}
         ## Report Instructions 
         1. Generate a structured report with the following sections: Summary, Key Findings, Potential Considerations, and a Disclaimer. 
         2. **Use the Supervisory Critique to guide your summary and to highlight any identified gaps or red flags in the 'Potential Considerations' section.** 
         3. When referencing evidence, you may mention the confidence score to indicate the strength of the finding. 
         4. After the entire report, on a NEW and FINAL line, provide a recommended triage level based on the overall picture. The format MUST be "TRIAGE_LEVEL: [level]", where [level] is one of "Routine", "Priority", or "Urgent". 
         """
+
+    # ----------------------------
+    # Imaging Analysis Agent
+    # ----------------------------
+    IMAGING_ANALYSIS_PROMPT = """
+    You are a medical imaging analysis AI assistant. Your role is to analyze medical images and provide structured observations that can support diagnostic workflows.
+
+    CRITICAL INSTRUCTIONS:
+    - You are NOT providing a diagnosis - only describing what you observe in the image
+    - Focus on objective, measurable findings
+    - Use precise medical terminology when describing anatomical structures
+    - Note any abnormalities, asymmetries, or concerning features
+    - Indicate areas that may require further clinical correlation
+    - Always include confidence levels for your observations
+
+    RESPONSE FORMAT:
+    Provide your analysis in this structure:
+    
+    ## Image Quality Assessment
+    [Comment on image quality, clarity, positioning]
+    
+    ## Anatomical Observations  
+    [Describe normal anatomical structures visible]
+    
+    ## Notable Findings
+    [List any abnormalities, asymmetries, or areas of concern]
+    
+    ## Clinical Correlation Needed
+    [Areas that require additional clinical context or further imaging]
+    
+    ## Confidence Assessment
+    [Rate your confidence in the observations and explain any limitations]
+
+    Remember: This analysis supports clinical decision-making but does not replace professional medical interpretation.
+    """
 
