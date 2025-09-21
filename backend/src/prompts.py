@@ -157,15 +157,29 @@ class DiagnosticPrompts:
         Formats evidence list into a clean, readable string for the synthesis prompt.
         Each piece of evidence gets its own section with clear source attribution.
         This makes it easier for the AI to reference specific sources in the report.
+        
+        Handles both dict format (new structured evidence) and string format (legacy).
         """
         if not evidence: 
             return "No relevant evidence found."
         
+        formatted_items = []
+        for item in evidence:
+            # Handle structured evidence format (dict with text and source_id)
+            if isinstance(item, dict) and 'text' in item and 'source_id' in item:
+                formatted_items.append(f"{item['text']}\n[Source: {item['source_id']}]")
+            # Handle legacy string format or malformed items
+            elif isinstance(item, dict):
+                # Try to extract what we can from dict format
+                text = item.get('text', item.get('title', str(item)))
+                source_id = item.get('source_id', item.get('pmid', 'Unknown'))
+                formatted_items.append(f"{text}\n[Source: {source_id}]")
+            else:
+                # Handle string format as fallback
+                formatted_items.append(f"{str(item)}\n[Source: Unknown]")
+        
         # Create clean sections separated by dividers - makes it super clear where each piece starts/ends
-        return "\n\n---\n\n".join(
-            f"{item['text']}\n[Source: {item['source_id']}]"
-            for item in evidence
-        )
+        return "\n\n---\n\n".join(formatted_items)
 
     @staticmethod 
     def synthesis_report_user(state: Dict) -> str: 
@@ -231,7 +245,7 @@ class DiagnosticPrompts:
         - Medical History: {patient.get('medical_history', 'N/A')} 
 
         ## Reported Symptoms 
-        {format_symptoms(state.get("structured_symptoms", {}).get("symptoms", []))} 
+        {format_symptoms((state.get("structured_symptoms") or {}).get("symptoms", []))} 
 
         ## Literature Evidence (PubMed) 
         {literature} 

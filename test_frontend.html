@@ -320,6 +320,33 @@
             window.open(pubmedUrl, '_blank');
         }
 
+        // Function to open OpenAlex links in a new tab
+        // OpenAlex uses work IDs or DOIs for direct access
+        function openOpenAlexLink(identifier) {
+            let openalexUrl;
+            if (identifier.startsWith('10.')) {
+                // It's a DOI
+                openalexUrl = `https://openalex.org/works/https://doi.org/${identifier}`;
+            } else if (identifier.startsWith('W')) {
+                // It's an OpenAlex work ID
+                openalexUrl = `https://openalex.org/works/${identifier}`;
+            } else {
+                // Try as a general search
+                openalexUrl = `https://openalex.org/works?search=${encodeURIComponent(identifier)}`;
+            }
+            window.open(openalexUrl, '_blank');
+        }
+
+        // Function to show supervisory critique context
+        // Shows what changed and why it was flagged by the supervisor
+        function showCritiqueContext() {
+            alert('Supervisory Critique: This finding was flagged by the AI supervisor for potential inconsistencies, gaps, or red flags that require clinical attention. Click to see the original evidence and critique reasoning.');
+            // TODO: In production, this would show a detailed modal with:
+            // - Original evidence that was critiqued
+            // - Specific critique reasoning
+            // - Suggested follow-up actions
+        }
+
         // Function to open DOI links in a new tab
         // DOI resolver automatically redirects to the publisher's page
         function openDoiLink(doi) {
@@ -605,6 +632,10 @@
             formatted = formatted.replace(/\[Source: PMID:(\d+)\]/g, 
                 '<span class="text-blue-600 font-medium bg-blue-100 px-2 py-1 rounded cursor-pointer hover:bg-blue-200 transition-colors" onclick="openPubMedLink(\'$1\')">[Source: PMID:$1]</span>');
             
+            // Highlight OpenAlex sources with clickable links
+            formatted = formatted.replace(/\[Source: OpenAlex:([^\]]+)\]/g, 
+                '<span class="text-teal-600 font-medium bg-teal-100 px-2 py-1 rounded cursor-pointer hover:bg-teal-200 transition-colors" onclick="openOpenAlexLink(\'$1\')">[Source: OpenAlex:$1]</span>');
+            
             // Highlight DOI sources with clickable links to DOI resolver
             formatted = formatted.replace(/\[Source: DOI:(10\.\d+\/[^\]]+)\]/g, 
                 '<span class="text-purple-600 font-medium bg-purple-100 px-2 py-1 rounded cursor-pointer hover:bg-purple-200 transition-colors" onclick="openDoiLink(\'$1\')">[Source: DOI:$1]</span>');
@@ -616,6 +647,10 @@
             // Highlight case study sources with clickable links to case viewer
             formatted = formatted.replace(/\[Source: CaseDB:([^\]]+)\]/g, 
                 '<span class="text-green-600 font-medium bg-green-100 px-2 py-1 rounded cursor-pointer hover:bg-green-200 transition-colors" onclick="openCaseStudy(\'$1\')">[Source: CaseDB:$1]</span>');
+            
+            // Highlight Supervisory Critique references with clickable links to show context
+            formatted = formatted.replace(/\[Supervisory Critique\]/g, 
+                '<span class="text-red-600 font-medium bg-red-100 px-2 py-1 rounded cursor-pointer hover:bg-red-200 transition-colors" onclick="showCritiqueContext()">[Supervisory Critique]</span>');
             
             // Highlight patient document references with clickable links
             formatted = formatted.replace(/\[Patient: ([^\]]+)\]/g, 

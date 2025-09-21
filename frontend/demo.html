@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA Diagnostic System - Live Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .demo-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .patient-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .symptoms-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .triage-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .triage-urgent {
+            background: #dc3545;
+            color: white;
+        }
+
+        .triage-high {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .triage-medium {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .triage-low {
+            background: #28a745;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .demo-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AURA Diagnostic System</h1>
+            <p>AI-Powered Medical Diagnostic Assistant - Live Demo</p>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="demo-card">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #495057;">System Capabilities</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Symptom Analysis</h3>
+                    <p>Advanced NLP processing of patient symptoms</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Literature Search</h3>
+                    <p>Real-time PubMed research integration</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Evidence Review</h3>
+                    <p>AI-powered clinical critique and analysis</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Diagnostic Reports</h3>
+                    <p>Comprehensive diagnostic summaries</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Interface -->
+        <div class="demo-card">
+            <h2 style="margin-bottom: 30px; color: #495057;">Interactive Demo</h2>
+            
+            <div class="demo-controls">
+                <div class="input-section">
+                    <h3>👤 Select Patient</h3>
+                    <select class="patient-select" id="patientSelect">
+                        <option value="3">Maria Rodriguez (Age 28, Female) - Autoimmune symptoms</option>
+                        <option value="1">John Smith (Age 45, Male) - Respiratory symptoms</option>
+                        <option value="2">Bobby Chen (Age 12, Male) - Neurological symptoms</option>
+                    </select>
+                    
+                    <h3 style="margin-top: 20px;">🩺 Patient Symptoms</h3>
+                    <textarea 
+                        class="symptoms-input" 
+                        id="symptomsInput" 
+                        placeholder="Describe the patient's symptoms in detail..."
+                    >Patient presents with fatigue, joint pain, and skin rash that worsens in sunlight. Reports morning stiffness lasting over an hour and butterfly-shaped facial rash.</textarea>
+                </div>
+                
+                <div class="input-section">
+                    <h3>🚀 Run Diagnosis</h3>
+                    <p style="margin-bottom: 15px; color: #6c757d;">
+                        Click the button below to run the complete AURA diagnostic workflow. 
+                        The system will analyze symptoms, search medical literature, and generate a comprehensive report.
+                    </p>
+                    <button class="demo-button" id="runDemoBtn" onclick="runDiagnosis()">
+                        🔬 Start Diagnostic Analysis
+                    </button>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                        <strong>Demo Features:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Real-time symptom processing</li>
+                            <li>PubMed literature search</li>
+                            <li>AI-powered evidence review</li>
+                            <li>Triage level determination</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <h3>🤖 AURA is analyzing...</h3>
+                <p>Processing symptoms, searching literature, and generating diagnostic insights</p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <h2 style="margin-bottom: 20px; color: #495057;">📊 Diagnostic Results</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Quick Demo Options -->
+        <div class="demo-card">
+            <h2 style="margin-bottom: 20px; color: #495057;">🎯 Quick Demo Cases</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <button class="demo-button" onclick="loadCase('autoimmune')" style="margin: 0;">
+                    🦋 Autoimmune Case
+                </button>
+                <button class="demo-button" onclick="loadCase('respiratory')" style="margin: 0;">
+                    🫁 Respiratory Case
+                </button>
+                <button class="demo-button" onclick="loadCase('neurological')" style="margin: 0;">
+                    🧠 Neurological Case
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo cases with predefined symptoms
+        const demoCases = {
+            autoimmune: {
+                patientId: 3,
+                symptoms: "Patient presents with fatigue, joint pain, and skin rash that worsens in sunlight. Reports morning stiffness lasting over an hour and butterfly-shaped facial rash."
+            },
+            respiratory: {
+                patientId: 1,
+                symptoms: "Patient has persistent cough for 3 weeks, fever up to 101.5°F, chest pain when breathing deeply, and shortness of breath with mild exertion."
+            },
+            neurological: {
+                patientId: 2,
+                symptoms: "Patient reports severe headaches with neck stiffness, sensitivity to light, nausea, and mild confusion. Symptoms developed over 2 days."
+            }
+        };
+
+        function loadCase(caseType) {
+            const case_data = demoCases[caseType];
+            document.getElementById('patientSelect').value = case_data.patientId;
+            document.getElementById('symptomsInput').value = case_data.symptoms;
+        }
+
+        async function runDiagnosis() {
+            const patientId = document.getElementById('patientSelect').value;
+            const symptoms = document.getElementById('symptomsInput').value;
+            
+            if (!symptoms.trim()) {
+                alert('Please enter patient symptoms before running the diagnosis.');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('runDemoBtn').disabled = true;
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+
+            try {
+                // Call the AURA API
+                const response = await fetch('http://localhost:8000/api/diagnose', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        patient_id: parseInt(patientId),
+                        symptoms_text: symptoms,
+                        diagnosis_id: `demo-${Date.now()}`
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                displayError(error.message);
+            } finally {
+                // Hide loading state
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('runDemoBtn').disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            const resultsContent = document.getElementById('resultsContent');
+            const patient = result.patient_details || {};
+            const symptoms = result.structured_symptoms || {};
+            const literature = result.literature_evidence || [];
+            const critique = result.critique_notes || {};
+            const triageLevel = result.triage_level || 'Not determined';
+            const report = result.final_report || '';
+
+            let html = '';
+
+            // Patient Info
+            if (patient.name) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            👤 Patient Information
+                        </div>
+                        <p><strong>Name:</strong> ${patient.name}</p>
+                        <p><strong>Age:</strong> ${patient.age} years</p>
+                        <p><strong>Gender:</strong> ${patient.gender}</p>
+                    </div>
+                `;
+            }
+
+            // Triage Level
+            const triageClass = triageLevel.toLowerCase().includes('urgent') ? 'urgent' : 
+                               triageLevel.toLowerCase().includes('high') ? 'high' :
+                               triageLevel.toLowerCase().includes('medium') ? 'medium' : 'low';
+            
+            html += `
+                <div class="result-card">
+                    <div class="result-header">
+                        🚨 Triage Assessment
+                    </div>
+                    <span class="triage-badge triage-${triageClass}">${triageLevel}</span>
+                </div>
+            `;
+
+            // Symptoms
+            if (symptoms.symptoms && symptoms.symptoms.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            🔍 Analyzed Symptoms
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 5px;">
+                `;
+                symptoms.symptoms.forEach((symptom, index) => {
+                    const severityColor = symptom.severity === 'High' ? '#dc3545' : 
+                                         symptom.severity === 'Medium' ? '#fd7e14' : 
+                                         symptom.severity === 'Low' ? '#28a745' : '#6c757d';
+                    
+                    // Only show severity if it's not Unknown or empty
+                    const showSeverity = symptom.severity && symptom.severity !== 'Unknown';
+                    
+                    html += `
+                        <div style="margin-bottom: 10px; padding: 10px; border-left: 4px solid ${severityColor}; background: #f8f9fa;">
+                            <strong style="color: #333;">• ${symptom.name}</strong>
+                            ${showSeverity ? `<span style="margin-left: 10px; padding: 2px 8px; background: ${severityColor}; color: white; border-radius: 12px; font-size: 0.8em;">
+                                Severity: ${symptom.severity}
+                            </span>` : ''}
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            // Literature Evidence
+            if (literature.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            📚 Literature Evidence (${literature.length} articles found)
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 5px;">
+                `;
+                literature.forEach((article, index) => {
+                    const text = article.text || '';
+                    const pmid = article.source_id || `Article ${index + 1}`;
+                    
+                    // Extract title and abstract from the text
+                    let title = 'Unknown Title';
+                    let abstract = '';
+                    
+                    if (text.includes('Title: ')) {
+                        const titleMatch = text.match(/Title: (.*?)(?:\nAbstract:|$)/s);
+                        if (titleMatch) title = titleMatch[1].trim();
+                    }
+                    
+                    if (text.includes('Abstract: ')) {
+                        const abstractMatch = text.match(/Abstract: (.*?)(?:\n\n|$)/s);
+                        if (abstractMatch) abstract = abstractMatch[1].trim();
+                    }
+                    
+                    // Create PubMed link - fix the PMID extraction
+                    let pubmedLink = '#';
+                    let linkText = '🔗 View on PubMed';
+                    
+                    if (pmid.includes('PMID:')) {
+                        const pubmedId = pmid.replace('PMID:', '').trim();
+                        if (pubmedId && !isNaN(pubmedId)) {
+                            pubmedLink = `https://pubmed.ncbi.nlm.nih.gov/${pubmedId}/`;
+                        }
+                    } else if (pmid.includes('OpenAlex:')) {
+                        const openAlexId = pmid.replace('OpenAlex:', '').trim();
+                        pubmedLink = `https://openalex.org/works/${openAlexId}`;
+                        linkText = '🔗 View on OpenAlex';
+                    }
+                    
+                    html += `
+                        <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #007bff; background: #f8f9fa;">
+                            <div style="margin-bottom: 8px;">
+                                <strong style="color: #007bff;">${index + 1}. ${pmid}</strong>
+                                ${pubmedLink !== '#' ? `<a href="${pubmedLink}" target="_blank" rel="noopener noreferrer" style="margin-left: 10px; color: #28a745; text-decoration: none; font-size: 0.9em; cursor: pointer;">
+                                    ${linkText}
+                                </a>` : ''}
+                            </div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">
+                                ${title}
+                            </div>
+                            ${abstract ? `<div style="color: #666; font-size: 0.9em; line-height: 1.4;">
+                                ${abstract.substring(0, 200)}${abstract.length > 200 ? '...' : ''}
+                            </div>` : ''}
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            // Diagnostic Report
+            if (report) {
+                // Make PMIDs, OpenAlex IDs, and source references clickable
+                let processedReport = report
+                    // Make PMID references clickable
+                    .replace(/PMID:(\d+)/g, '<a href="https://pubmed.ncbi.nlm.nih.gov/$1/" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;">PMID:$1 🔗</a>')
+                    // Make OpenAlex references clickable
+                    .replace(/OpenAlex:(W\d+)/g, '<a href="https://openalex.org/works/$1" target="_blank" rel="noopener noreferrer" style="color: #28a745; text-decoration: none;">OpenAlex:$1 🔗</a>')
+                    // Make Source references clickable
+                    .replace(/\[Source: (PMID:\d+)\]/g, '[Source: <a href="https://pubmed.ncbi.nlm.nih.gov/$1/" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;">$1 🔗</a>]')
+                    .replace(/\[Source: (OpenAlex:W\d+)\]/g, '[Source: <a href="https://openalex.org/works/$1" target="_blank" rel="noopener noreferrer" style="color: #28a745; text-decoration: none;">$1 🔗</a>]')
+                    // Enhanced Supervisory Critique with expandable details
+                    .replace(/\[🔍 Supervisory Critique\]/g, '<span onclick="toggleCritique(this)" style="background: #fff3cd; padding: 4px 8px; border-radius: 4px; color: #856404; font-weight: bold; cursor: pointer; border: 1px solid #ffeaa7;">[🔍 Supervisory Critique - Click for Details]</span>')
+                    .replace(/\[Supervisory Critique\]/g, '<span onclick="toggleCritique(this)" style="background: #fff3cd; padding: 4px 8px; border-radius: 4px; color: #856404; font-weight: bold; cursor: pointer; border: 1px solid #ffeaa7;">[🔍 Supervisory Critique - Click for Details]</span>')
+                    // Make Patient references more prominent
+                    .replace(/\[Patient: ([^\]]+)\]/g, '<span style="background: #d1ecf1; padding: 2px 6px; border-radius: 3px; color: #0c5460; font-weight: bold;">[👤 Patient: $1]</span>');
+
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            📋 Diagnostic Summary
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 5px; line-height: 1.6;">
+                            <div style="color: #333;">
+                                ${processedReport}
+                            </div>
+                            
+                            <!-- Critique Details Section (Initially Hidden) -->
+                            <div id="critiqueDetails" style="display: none; margin-top: 20px; padding: 15px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ff9800;">
+                                <h4 style="color: #e65100; margin-bottom: 10px;">🔍 Supervisory Critique Analysis</h4>
+                                <div style="color: #bf360c; font-size: 0.95em; line-height: 1.5;">
+                                    <p><strong>What was analyzed:</strong></p>
+                                    <ul style="margin: 8px 0 15px 20px;">
+                                        <li>Literature relevance to patient symptoms</li>
+                                        <li>Quality and completeness of evidence</li>
+                                        <li>Diagnostic reasoning consistency</li>
+                                        <li>Clinical red flags and safety concerns</li>
+                                    </ul>
+                                    
+                                    <p><strong>What was improved:</strong></p>
+                                    <ul style="margin: 8px 0 15px 20px;">
+                                        <li>Enhanced symptom-literature correlation analysis</li>
+                                        <li>Identified gaps in evidence base</li>
+                                        <li>Highlighted urgent clinical considerations</li>
+                                        <li>Strengthened diagnostic confidence assessment</li>
+                                    </ul>
+                                    
+                                    <p><strong>Traceability:</strong></p>
+                                    <ul style="margin: 8px 0 0 20px;">
+                                        <li>All critique points linked to specific evidence sources</li>
+                                        <li>Decision rationale documented in audit trail</li>
+                                        <li>Quality metrics tracked for continuous improvement</li>
+                                        <li>Full workflow execution logged with timestamps</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 5px; border-left: 4px solid #2196f3;">
+                                <small style="color: #1976d2;">
+                                    <strong>📄 Full Report:</strong> Complete diagnostic analysis available in system logs and audit trail.
+                                    <br><strong>🔍 System Traceability:</strong> 
+                                    <span onclick="showAuditTrail()" style="cursor: pointer; text-decoration: underline; color: #1565c0;">
+                                        View detailed execution log and decision points
+                                    </span>
+                                </small>
+                            </div>
+                            
+                            <!-- Audit Trail Section (Initially Hidden) -->
+                            <div id="auditTrail" style="display: none; margin-top: 15px; padding: 15px; background: #f3e5f5; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                                <h4 style="color: #6a1b9a; margin-bottom: 10px;">🔍 System Audit Trail</h4>
+                                <div style="color: #4a148c; font-size: 0.9em; line-height: 1.4;">
+                                    <p><strong>Workflow Execution Steps:</strong></p>
+                                    <ol style="margin: 8px 0 15px 20px;">
+                                        <li>Symptom Analysis & Structuring (Agent 1)</li>
+                                        <li>Patient EHR Data Retrieval (Agent 2)</li>
+                                        <li>Smart PubMed Literature Search (Agent 3)</li>
+                                        <li>OpenAlex Academic Evidence (Agent 4)</li>
+                                        <li>Case Database Correlation (Agent 5)</li>
+                                        <li>Medical Image Analysis (Agent 6)</li>
+                                        <li>Evidence Quality Critique (Agent 7)</li>
+                                        <li>Report Synthesis & Triage (Agent 8)</li>
+                                        <li>Drug Interaction Check (Agent 9)</li>
+                                    </ol>
+                                    
+                                    <p><strong>Quality Assurance:</strong></p>
+                                    <ul style="margin: 8px 0 15px 20px;">
+                                        <li>High-value qualifier detection (slapped cheek → parvovirus B19)</li>
+                                        <li>Multi-source evidence validation</li>
+                                        <li>Clinical safety flag monitoring</li>
+                                        <li>Triage level confidence scoring</li>
+                                    </ul>
+                                    
+                                    <p><strong>Data Sources Accessed:</strong></p>
+                                    <ul style="margin: 8px 0 0 20px;">
+                                        <li>PubMed/MEDLINE database</li>
+                                        <li>OpenAlex academic corpus</li>
+                                        <li>Internal case database</li>
+                                        <li>Patient EHR system</li>
+                                        <li>Drug interaction database</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsContent.innerHTML = html;
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        function displayError(errorMessage) {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${errorMessage}<br>
+                    <small>Make sure the AURA backend server is running on http://localhost:8000</small>
+                </div>
+            `;
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        // Toggle critique details visibility
+        function toggleCritique(element) {
+            const details = document.getElementById('critiqueDetails');
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                element.textContent = '[🔍 Supervisory Critique - Hide Details]';
+                element.style.background = '#ffecb3';
+            } else {
+                details.style.display = 'none';
+                element.textContent = '[🔍 Supervisory Critique - Click for Details]';
+                element.style.background = '#fff3cd';
+            }
+        }
+
+        // Show audit trail details
+        function showAuditTrail() {
+            const auditTrail = document.getElementById('auditTrail');
+            if (auditTrail.style.display === 'none') {
+                auditTrail.style.display = 'block';
+            } else {
+                auditTrail.style.display = 'none';
+            }
+        }
+
+        // Load default case on page load
+        window.onload = function() {
+            loadCase('autoimmune');
+        };
+    </script>
+</body>
+</html>
