@@ -1,4 +1,6 @@
-#!/Users/adityaray/Desktop/AURA/aura-diagnostics/backend/venv/bin/python3
+#!/bin/sh
+'''exec' "/Users/darshiyer/Desktop/Aura Positive/aura-diagnostics/backend/venv/bin/python3.13" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys

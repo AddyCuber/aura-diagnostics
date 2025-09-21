@@ -17,9 +17,9 @@ import logging
 import os
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agents import ehr_agent
 from src.workflow import OrchestratorWorkflow  # Our new LangGraph workflow
@@ -43,9 +43,9 @@ app = FastAPI(
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to your frontend URL in production
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -117,8 +117,11 @@ async def run_diagnosis(request: DiagnosisRequest) -> JSONResponse:
         raise  # re-raise FastAPI handled exceptions
 
     except Exception as e:
-        logger.exception(f"[{diagnosis_id}] Unexpected error during diagnosis")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.exception(f"[{diagnosis_id}] Unexpected error during diagnosis: {str(e)}")
+        return JSONResponse(
+            status_code=500, 
+            content={"error_message": f"Internal server error: {str(e)}"}
+        )
 
 @app.get("/health")
 async def health_check():
